@@ -38,6 +38,7 @@ The popup will tell you how many torrents were processed and confirm the copy.
 | Date | Search results table |
 | Info Hash | Detail page (magnet link) |
 | MediaInfo block | Detail page `<pre>` element |
+| Comments (optional) | Detail page comment section |
 
 ---
 
