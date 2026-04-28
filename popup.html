@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>1337x Scout</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+  :root {
+    --bg:        #2b2b2b;
+    --surface:   #313335;
+    --surface2:  #3c3f41;
+    --border:    #4a4a4a;
+    --accent:    #6897bb;
+    --accent-dim:#1e2d3d;
+    --amber:     #ffc66d;
+    --amber-dim: #3a2e1a;
+    --red:       #cc6666;
+    --green:     #6a8759;
+    --green-dim: #232e1f;
+    --blue:      #6897bb;
+    --muted:     #6a6a6a;
+    --text:      #a9b7c6;
+    --text-dim:  #7a8a97;
+    --text-bright: #bbbbbb;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 300px;
+    background: var(--bg);
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+    padding: 13px;
+    user-select: none;
+  }
+
+  /* ─── Header ─── */
+  .header {
+    display: flex; align-items: center; gap: 9px;
+    margin-bottom: 11px; padding-bottom: 9px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    width: 24px; height: 24px; background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #1e1e1e; flex-shrink: 0;
+  }
+  .title-block { flex: 1; }
+  .title { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; }
+  .subtitle { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+  .gear-btn {
+    background: none; border: 1px solid var(--border); color: var(--text-dim);
+    width: 24px; height: 24px; cursor: pointer; font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s, color 0.15s; flex-shrink: 0;
+  }
+  .gear-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ─── Warning ─── */
+  .warning {
+    font-size: 10.5px; color: var(--amber); background: var(--amber-dim);
+    border: 1px solid rgba(255,198,109,0.25); padding: 6px 9px;
+    margin-bottom: 9px; line-height: 1.5; display: none;
+  }
+  .warning.visible { display: block; }
+
+  /* ─── Mode selector ─── */
+  .mode-section { margin-bottom: 9px; }
+  .section-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px; }
+
+  .mode-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+  }
+  .mode-btn {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text-dim); font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; padding: 7px 4px; cursor: pointer;
+    text-align: center; transition: all 0.15s; line-height: 1.3;
+  }
+  .mode-btn:hover { border-color: var(--border); color: var(--text-bright); background: var(--surface2); }
+
+  .mode-btn.active[data-mode="quality"]       { border-color: var(--green);  color: var(--green);  background: var(--green-dim); }
+  .mode-btn.active[data-mode="compatibility"] { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .mode-btn.active[data-mode="size"]          { border-color: var(--amber);  color: var(--amber);  background: var(--amber-dim); }
+  .mode-btn.active[data-mode="manual"]        { border-color: var(--muted);  color: var(--text-bright); background: var(--surface2); }
+
+  .mode-icon { font-size: 12px; display: block; margin-bottom: 2px; }
+
+  /* ─── Quick filters strip ─── */
+  .filter-strip {
+    display: flex; align-items: center; gap: 5px;
+    margin-bottom: 9px; padding: 6px 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    font-size: 10px; color: var(--text-dim);
+  }
+  .filter-strip-label { color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; flex-shrink: 0; }
+  .filter-tags { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+  .filter-tag {
+    padding: 2px 5px; background: var(--surface2); border: 1px solid var(--border);
+    font-size: 9.5px; color: var(--text-dim); white-space: nowrap;
+  }
+  .filter-tag.active { border-color: var(--amber); color: var(--amber); }
+  .filter-edit-link {
+    font-size: 9.5px; color: var(--muted); text-decoration: none; cursor: pointer;
+    flex-shrink: 0; transition: color 0.15s;
+  }
+  .filter-edit-link:hover { color: var(--accent); }
+
+  /* ─── Status ─── */
+  .status-box {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 8px 11px; margin-bottom: 9px; min-height: 46px;
+    position: relative; overflow: hidden;
+  }
+  .status-box::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 2px; background: var(--border); transition: background 0.3s;
+  }
+  .status-box.running::before { background: var(--amber); }
+  .status-box.done::before    { background: var(--green); }
+  .status-box.error::before   { background: var(--red); }
+
+  .status-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
+  .status-text  { font-size: 12px; color: var(--text); word-break: break-word; line-height: 1.4; transition: color 0.2s; }
+  .status-box.running .status-text { color: var(--amber); }
+  .status-box.done    .status-text { color: var(--green); }
+  .status-box.error   .status-text { color: var(--red); }
+
+  .progress-bar-track { height: 2px; background: var(--border); margin-top: 6px; display: none; }
+  .progress-bar-fill  { height: 100%; background: var(--amber); width: 0%; transition: width 0.3s ease, background 0.3s; }
+  .status-box.running .progress-bar-track { display: block; }
+  .status-box.done    .progress-bar-track { display: block; }
+  .status-box.done    .progress-bar-fill  { width: 100%; background: var(--green); }
+
+  .count-row { display: flex; justify-content: space-between; margin-top: 4px; font-size: 10px; color: var(--muted); }
+
+  /* ─── Run button ─── */
+  .btn {
+    width: 100%; padding: 10px;
+    background: transparent; border: 1px solid var(--accent);
+    color: var(--accent); font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+  }
+  .btn:hover:not(:disabled) { background: var(--accent); color: #1e1e1e; }
+  .btn:active:not(:disabled) { transform: scale(0.98); }
+  .btn:disabled { border-color: var(--border); color: var(--muted); cursor: not-allowed; }
+
+  .spinner {
+    display: none; width: 9px; height: 9px;
+    border: 1.5px solid var(--muted); border-top-color: var(--amber);
+    border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;
+  }
+  .running .spinner { display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .footer { margin-top: 9px; font-size: 9.5px; color: var(--muted); text-align: center; letter-spacing: 0.05em; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">▶</div>
+  <div class="title-block">
+    <div class="title">1337x Scout</div>
+    <div class="subtitle">Torrent research tool</div>
+  </div>
+  <button class="gear-btn" id="gearBtn" title="Open settings">⚙</button>
+</div>
+
+<div id="warning" class="warning"></div>
+
+<!-- Mode selector -->
+<div class="mode-section">
+  <div class="section-label">Priority mode</div>
+  <div class="mode-grid">
+    <button class="mode-btn" data-mode="quality">
+      <span class="mode-icon">◈</span>Quality
+    </button>
+    <button class="mode-btn" data-mode="compatibility">
+      <span class="mode-icon">⊕</span>Compat
+    </button>
+    <button class="mode-btn" data-mode="size">
+      <span class="mode-icon">⊘</span>Size
+    </button>
+    <button class="mode-btn" data-mode="manual">
+      <span class="mode-icon">✎</span>Manual
+    </button>
+  </div>
+</div>
+
+<!-- Active filter summary strip -->
+<div class="filter-strip">
+  <span class="filter-strip-label">Filters</span>
+  <div class="filter-tags" id="filterTags">
+    <span class="filter-tag">none active</span>
+  </div>
+  <span class="filter-edit-link" id="filterEditLink">edit ›</span>
+</div>
+
+<!-- Status -->
+<div id="statusBox" class="status-box">
+  <div class="status-label">Status</div>
+  <div id="statusText" class="status-text">Ready.</div>
+  <div class="progress-bar-track">
+    <div id="progressFill" class="progress-bar-fill"></div>
+  </div>
+  <div id="countRow" class="count-row" style="display:none">
+    <span id="countLabel">—</span>
+    <span id="countFrac">0 / 0</span>
+  </div>
+</div>
+
+<button id="scrapeBtn" class="btn">
+  <span id="btnLabel">Scrape &amp; Copy</span>
+  <div class="spinner"></div>
+</button>
+
+<div class="footer">Background tabs · Auto-closed · No external data sent</div>
+
+<script src="defaults.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>

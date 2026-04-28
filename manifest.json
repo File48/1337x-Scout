@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "1337x Scout",
+  "version": "1.5.2",
+  "description": "Scrape torrent metadata + mediainfo from 1337x search results and compile a structured payload for AI-assisted filtering.",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "scripting",
+    "clipboardWrite",
+    "storage",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "https://1337x.to/*",
+    "https://www.1337x.to/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://1337x.to/*", "https://www.1337x.to/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

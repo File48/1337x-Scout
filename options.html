@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>1337x Scout — Settings</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg:        #2b2b2b;
+    --surface:   #313335;
+    --surface2:  #3c3f41;
+    --surface3:  #45494a;
+    --border:    #4a4a4a;
+    --border2:   #555;
+    --accent:    #6897bb;
+    --accent-dim:#1e2d3d;
+    --green:     #6a8759;
+    --green-dim: #232e1f;
+    --amber:     #ffc66d;
+    --amber-dim: #3a2e1a;
+    --blue:      #6897bb;
+    --blue-dim:  #1e2d3d;
+    --red:       #cc6666;
+    --muted:     #6a6a6a;
+    --muted2:    #555;
+    --text:      #a9b7c6;
+    --text-dim:  #7a8a97;
+    --text-bright: #bbbbbb;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+  }
+
+  body { display: flex; flex-direction: column; }
+
+  /* ─── Top bar ─── */
+  .topbar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 24px; border-bottom: 1px solid var(--border);
+    background: var(--surface); position: sticky; top: 0; z-index: 10;
+  }
+  .topbar-logo {
+    width: 28px; height: 28px; background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: #1e1e1e;
+  }
+  .topbar-title { font-size: 14px; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; }
+  .topbar-sub   { font-size: 11px; color: var(--muted); margin-top: 1px; letter-spacing: 0.05em; }
+  .topbar-spacer { flex: 1; }
+
+  .save-all-btn {
+    padding: 8px 18px; background: var(--accent); border: none; color: #1e1e1e;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .save-all-btn:hover { opacity: 0.85; }
+  .save-all-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .saved-indicator {
+    font-size: 11px; color: var(--green); opacity: 0; transition: opacity 0.3s;
+    letter-spacing: 0.08em;
+  }
+  .saved-indicator.show { opacity: 1; }
+
+  /* ─── Layout ─── */
+  .main { display: flex; flex: 1; }
+
+  /* ─── Sidebar nav ─── */
+  .sidebar {
+    width: 180px; flex-shrink: 0; border-right: 1px solid var(--border);
+    padding: 20px 0; position: sticky; top: 57px; height: calc(100vh - 57px);
+    overflow-y: auto;
+  }
+  .nav-section-label {
+    font-size: 10px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.12em; padding: 0 16px 6px; margin-top: 12px;
+  }
+  .nav-section-label:first-child { margin-top: 0; }
+  .nav-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px; cursor: pointer; font-size: 12px; color: var(--text-dim);
+    border-left: 2px solid transparent; transition: all 0.15s;
+  }
+  .nav-item:hover { color: var(--text-bright); background: var(--surface2); }
+  .nav-item.active { color: var(--text-bright); border-left-color: var(--accent); background: var(--accent-dim); }
+  .nav-item.active.blue   { border-left-color: var(--blue);  background: var(--blue-dim);  color: var(--blue); }
+  .nav-item.active.amber  { border-left-color: var(--amber); background: var(--amber-dim); color: var(--amber); }
+  .nav-item.active.muted  { border-left-color: var(--muted2); background: var(--surface2); color: var(--text-bright); }
+  .nav-dot { width: 6px; height: 6px; border-radius: 0; flex-shrink: 0; background: currentColor; }
+
+  /* ─── Content ─── */
+  .content { flex: 1; overflow-y: auto; }
+
+  .section {
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--border);
+    display: none;
+  }
+  .section.active { display: block; }
+
+  .section-heading {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .section-title { font-size: 15px; font-weight: 700; color: var(--text-bright); margin-bottom: 4px; }
+  .section-desc  { font-size: 11px; color: var(--text-dim); line-height: 1.6; max-width: 480px; }
+
+  /* ─── Form elements ─── */
+  .field-group { margin-bottom: 18px; }
+  .field-label {
+    font-size: 11px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.1em; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+  }
+  .field-hint { font-size: 10px; color: var(--muted); text-transform: none; letter-spacing: 0; font-weight: 400; }
+
+  .input-row { display: flex; gap: 8px; align-items: center; }
+  .input-wrap { position: relative; }
+  .text-input {
+    background: var(--surface2); border: 1px solid var(--border2);
+    color: var(--text-bright); font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    padding: 7px 10px; outline: none; transition: border-color 0.15s; width: 100%;
+  }
+  .text-input:focus { border-color: var(--accent); }
+  .text-input::placeholder { color: var(--muted); }
+  .text-input.w80 { width: 80px; }
+  .input-unit {
+    font-size: 11px; color: var(--muted); position: absolute;
+    right: 9px; top: 50%; transform: translateY(-50%); pointer-events: none;
+  }
+  .input-sep { font-size: 12px; color: var(--muted); flex-shrink: 0; }
+
+  /* Toggle / checkbox */
+  .toggle-row {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border);
+    cursor: pointer; transition: border-color 0.15s; margin-bottom: 6px;
+  }
+  .toggle-row:hover { border-color: var(--border2); }
+  .toggle-row:last-child { margin-bottom: 0; }
+  .toggle-box {
+    width: 14px; height: 14px; border: 1px solid var(--muted); flex-shrink: 0; margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .toggle-box.on { background: var(--accent); border-color: var(--accent); }
+  .toggle-tick { font-size: 9px; color: #1e1e1e; display: none; }
+  .toggle-box.on .toggle-tick { display: block; }
+  .toggle-text-block { flex: 1; }
+  .toggle-title { font-size: 12px; color: var(--text-bright); margin-bottom: 3px; }
+  .toggle-sub   { font-size: 10px; color: var(--text-dim); line-height: 1.5; }
+
+  /* Prompt editor */
+  .prompt-editor-wrap { position: relative; }
+  .prompt-textarea {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border2);
+    color: var(--text-bright); font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
+    padding: 10px 12px; outline: none; resize: vertical; min-height: 200px;
+    line-height: 1.65; transition: border-color 0.15s;
+  }
+  .prompt-textarea:focus { border-color: var(--accent); }
+
+  .prompt-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 6px;
+  }
+  .char-count { font-size: 10px; color: var(--muted); }
+
+  .btn-row { display: flex; gap: 6px; }
+  .mini-btn {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600;
+    padding: 5px 10px; background: transparent; border: 1px solid var(--border2);
+    color: var(--text-dim); cursor: pointer; text-transform: uppercase; letter-spacing: 0.08em;
+    transition: all 0.15s;
+  }
+  .mini-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .mini-btn.danger:hover { border-color: var(--red); color: var(--red); }
+
+  /* Mode preview badge */
+  .mode-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 8px; font-size: 10px; letter-spacing: 0.08em;
+    text-transform: uppercase; border: 1px solid;
+  }
+  .mode-badge.quality       { border-color: var(--green);  color: var(--green);  background: var(--green-dim); }
+  .mode-badge.compatibility { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .mode-badge.size          { border-color: var(--amber);  color: var(--amber);  background: var(--amber-dim); }
+  .mode-badge.manual        { border-color: var(--muted2); color: var(--text-dim); background: var(--surface2); }
+
+  /* Divider */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+  /* Info box */
+  .info-box {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 2px solid var(--accent);
+    padding: 9px 12px; font-size: 10.5px; color: var(--text-dim); line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .info-box.amber { border-left-color: var(--amber); }
+
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-logo">▶</div>
+  <div>
+    <div class="topbar-title">1337x Scout</div>
+    <div class="topbar-sub">Settings</div>
+  </div>
+  <div class="topbar-spacer"></div>
+  <span class="saved-indicator" id="savedIndicator">✓ Saved</span>
+  <button class="save-all-btn" id="saveAllBtn">Save All</button>
+</div>
+
+<div class="main">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="nav-section-label">Filters</div>
+    <div class="nav-item active" data-section="filters">
+      <span class="nav-dot"></span>Size &amp; Uploaders
+    </div>
+
+    <div class="nav-section-label">Prompts</div>
+    <div class="nav-item" data-section="prompt-quality" data-color="green">
+      <span class="nav-dot"></span>◈ Quality
+    </div>
+    <div class="nav-item" data-section="prompt-compatibility" data-color="blue">
+      <span class="nav-dot"></span>⊕ Compatibility
+    </div>
+    <div class="nav-item" data-section="prompt-size" data-color="amber">
+      <span class="nav-dot"></span>⊘ Size
+    </div>
+    <div class="nav-item" data-section="prompt-manual" data-color="muted">
+      <span class="nav-dot"></span>✎ Manual
+    </div>
+  </nav>
+
+  <!-- Sections -->
+  <div class="content">
+
+    <!-- ── Filters ── -->
+    <div class="section active" id="section-filters">
+      <div class="section-heading">
+        <div>
+          <div class="section-title">Size &amp; Uploader Filters</div>
+          <div class="section-desc">Torrents that match a filter are included in the output payload but marked <code>[FILTERED: reason]</code> and skipped during detail page fetching — saving time on large result pages.</div>
+        </div>
+      </div>
+
+      <!-- Size range -->
+      <div class="field-group">
+        <div class="field-label">
+          File size range
+          <span class="field-hint">— leave blank for no limit</span>
+        </div>
+        <div class="input-row">
+          <div class="input-wrap">
+            <input class="text-input w80" id="sizeMin" type="number" min="0" step="0.1" placeholder="0">
+            <span class="input-unit">GB</span>
+          </div>
+          <span class="input-sep">—</span>
+          <div class="input-wrap">
+            <input class="text-input w80" id="sizeMax" type="number" min="0" step="0.1" placeholder="∞">
+            <span class="input-unit">GB</span>
+          </div>
+          <span style="font-size:8.5px;color:var(--text-dim)">Torrents outside this range are marked [FILTERED]</span>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Uploader filters -->
+      <div class="field-group">
+        <div class="field-label">Uploader filters</div>
+
+        <div class="toggle-row" id="toggleYify">
+          <div class="toggle-box on" id="yifyBox"><span class="toggle-tick">✓</span></div>
+          <div class="toggle-text-block">
+            <div class="toggle-title">Skip YIFY / YTS releases</div>
+            <div class="toggle-sub">Matches on uploader name (yify, yts.mx, yts.am, yts.lt) and torrent name signatures ([YTS., YIFY). These are heavily compressed encodes heavily compressed encodes — generally not worth fetching.</div>
+          </div>
+        </div>
+
+        <div class="toggle-row" id="toggleComments">
+          <div class="toggle-box" id="commentsBox"><span class="toggle-tick">✓</span></div>
+          <div class="toggle-text-block">
+            <div class="toggle-title">Scrape comments</div>
+            <div class="toggle-sub">Extracts user comments from each detail page and appends them to the payload. Comments often contain quality reports, playback issues, or fixes. Adds no extra time — scraped in the same page visit.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Prompt: Quality ── -->
+    <div class="section" id="section-prompt-quality">
+      <div class="section-heading">
+        <div>
+          <div class="section-title">Quality Mode Prompt <span class="mode-badge quality">◈ Quality</span></div>
+          <div class="section-desc">Used when Quality is selected in the popup. Biases the AI toward remuxes, high bitrate encodes, and reputable scene groups.</div>
+        </div>
+      </div>
+      <div class="info-box">This prompt is injected verbatim at the top of the clipboard payload as the AI's instruction block. The torrent data follows immediately after.</div>
+      <div class="field-group">
+        <div class="field-label">Prompt text</div>
+        <div class="prompt-editor-wrap">
+          <textarea class="prompt-textarea" id="promptQuality" data-key="quality"></textarea>
+        </div>
+        <div class="prompt-footer">
+          <span class="char-count" id="charQuality">0 chars</span>
+          <div class="btn-row">
+            <button class="mini-btn danger" data-reset="quality">Reset to default</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Prompt: Compatibility ── -->
+    <div class="section" id="section-prompt-compatibility">
+      <div class="section-heading">
+        <div>
+          <div class="section-title">Compatibility Mode Prompt <span class="mode-badge compatibility">⊕ Compat</span></div>
+          <div class="section-desc">Used when Compatibility is selected. Prioritises H.264 + AAC for broad client compatibility and direct play without transcoding.</div>
+        </div>
+      </div>
+      <div class="info-box">This prompt is injected verbatim at the top of the clipboard payload as the AI's instruction block.</div>
+      <div class="field-group">
+        <div class="field-label">Prompt text</div>
+        <div class="prompt-editor-wrap">
+          <textarea class="prompt-textarea" id="promptCompatibility" data-key="compatibility"></textarea>
+        </div>
+        <div class="prompt-footer">
+          <span class="char-count" id="charCompatibility">0 chars</span>
+          <div class="btn-row">
+            <button class="mini-btn danger" data-reset="compatibility">Reset to default</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Prompt: Size ── -->
+    <div class="section" id="section-prompt-size">
+      <div class="section-heading">
+        <div>
+          <div class="section-title">Size Mode Prompt <span class="mode-badge size">⊘ Size</span></div>
+          <div class="section-desc">Used when Size is selected. Prioritises efficient encodes (x265 web-dl, small AAC audio) and ranks by storage efficiency.</div>
+        </div>
+      </div>
+      <div class="info-box">This prompt is injected verbatim at the top of the clipboard payload as the AI's instruction block.</div>
+      <div class="field-group">
+        <div class="field-label">Prompt text</div>
+        <div class="prompt-editor-wrap">
+          <textarea class="prompt-textarea" id="promptSize" data-key="size"></textarea>
+        </div>
+        <div class="prompt-footer">
+          <span class="char-count" id="charSize">0 chars</span>
+          <div class="btn-row">
+            <button class="mini-btn danger" data-reset="size">Reset to default</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Prompt: Manual ── -->
+    <div class="section" id="section-prompt-manual">
+      <div class="section-heading">
+        <div>
+          <div class="section-title">Manual Mode Prompt <span class="mode-badge manual">✎ Manual</span></div>
+          <div class="section-desc">A fully freeform prompt — no preset logic applied. Write exactly what you want the AI to do with the torrent data.</div>
+        </div>
+      </div>
+      <div class="info-box amber">Manual mode uses this prompt as-is. There are no default quality/compatibility/size heuristics applied — it's entirely up to what you write here.</div>
+      <div class="field-group">
+        <div class="field-label">Prompt text</div>
+        <div class="prompt-editor-wrap">
+          <textarea class="prompt-textarea" id="promptManual" data-key="manual"></textarea>
+        </div>
+        <div class="prompt-footer">
+          <span class="char-count" id="charManual">0 chars</span>
+          <div class="btn-row">
+            <button class="mini-btn danger" data-reset="manual">Reset to default</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script src="defaults.js"></script>
+<script src="options.js"></script>
+</body>
+</html>
