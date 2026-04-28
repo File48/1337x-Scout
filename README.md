@@ -49,7 +49,7 @@ The clipboard payload is structured Markdown:
 # 1337x Torrent Research Payload
 # Generated: 2024-11-15 14:32:01
 # Total results: 20
-
+```
 ---
 
 ## PROMPT FOR AI
@@ -57,24 +57,20 @@ Below are 20 torrent options scraped from 1337x. Please analyse them...
 
 ---
 
-## [1] Movie.Name.2024.2160p.BluRay...
+#### [1] Movie.Name.2024.2160p.BluRay...
 - **Size:** 58.3 GB
 - **Seeds / Leeches:** 142 / 23
 - **Uploader:** someUploader
 - **Date:** Nov. 10th '24
 - **Info Hash:** ABC123...
 
-### MediaInfo
+##### MediaInfo
 ```
 General
 Complete name: Movie.Name.2024...
 Format: Matroska
 ...
 ```
-
----
-```
-
 ---
 
 ## Notes
